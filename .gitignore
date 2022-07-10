@@ -1,0 +1,10 @@
+build/*
+.vscode/*
+
+src/arduino_secrets.h
+
+.env
+
+# Allow some files manually
+!build/.gitkeep
+!.vscode/arduino.json
