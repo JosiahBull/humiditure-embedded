@@ -7,6 +7,9 @@ const char* password = "__PASSWORD_HERE";
 const char* serverAddress = "__SERVER_ADDRESS_HERE";
 const int sensorId = 0;
 
+#define DEBUG false  //set to true for debug output, false for no debug output
+#define DEBUG_SERIAL if(DEBUG)Serial
+
 /******* VISION SETUP *******/
 #include <eloquent.h>
 #include <eloquent/vision/motion/naive.h>
@@ -39,14 +42,14 @@ void IRAM_ATTR onTimer() {
 void post_to_webserver() {
     /***** WiFi Setup *****/
     WiFi.begin(ssid, password);
-    Serial.print("Connecting to WiFi");
+    DEBUG_SERIAL.print("Connecting to WiFi");
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
-        Serial.print(".");
+        DEBUG_SERIAL.print(".");
     }
-    Serial.println("");
-    Serial.print("Connected at ip address: ");
-    Serial.println(WiFi.localIP());
+    DEBUG_SERIAL.println("");
+    DEBUG_SERIAL.print("Connected at ip address: ");
+    DEBUG_SERIAL.println(WiFi.localIP());
 
     HTTPClient http;
     http.begin(serverAddress);
@@ -64,7 +67,7 @@ void post_to_webserver() {
 
 void setup() {
     delay(4000);
-    Serial.begin(115200);
+    DEBUG_SERIAL.begin(115200);
 
     /***** Camera Setup *****/
     // turn on high freq for fast streaming speed
@@ -73,7 +76,7 @@ void setup() {
     if (!camera.begin())
         eloquent::abort(Serial, "Camera init error");
 
-    Serial.println("Camera init OK");
+    DEBUG_SERIAL.println("Camera init OK");
 
     detector.throttle(10);
 
@@ -95,7 +98,7 @@ void setup() {
 void loop() {
     // Check if we need to update the server with our current status
     if (interruptCounter > sendInterval) {
-        Serial.println("Sending data to server");
+        DEBUG_SERIAL.println("Sending data to server");
         portENTER_CRITICAL_ISR(&timerMux);
         interruptCounter = 0;
         portEXIT_CRITICAL_ISR(&timerMux);
@@ -109,11 +112,11 @@ void loop() {
     // Check for motion on the camera
     if (!motionDetected) {
         if (!camera.capture()) {
-            Serial.println(camera.getErrorMessage());
+            DEBUG_SERIAL.println(camera.getErrorMessage());
             return;
         }
 
-        Serial.println("Processing camera image...");
+        DEBUG_SERIAL.println("Processing camera image...");
 
         // perform motion detection on resized image for fast detection
         camera.image.resize<THUMB_WIDTH, THUMB_HEIGHT>();
@@ -121,7 +124,7 @@ void loop() {
         detector.update(camera.image);
 
         if (detector.isMotionDetected() && !messageSent) {
-            Serial.println("Motion detected");
+            DEBUG_SERIAL.println("Motion detected");
             digitalWrite(16, HIGH);
             motionDetected = true;
         } else {
