@@ -2,9 +2,9 @@
 // How often to send data to the webserver in seconds
 const int sendInterval = 60; // 300 seconds = 5 minutes
 
-const char* ssid = WIFI_SSID_ENV;
-const char* password = WIFI_PASSWORD_ENV;
-const char* serverAddress = SERVER_ADDRESS_ENV;
+const char* ssid = "__SSID__HERE";
+const char* password = "__PASSWORD_HERE";
+const char* serverAddress = "__SERVER_ADDRESS_HERE";
 const int sensorId = 0;
 
 /******* VISION SETUP *******/
